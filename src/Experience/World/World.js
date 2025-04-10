@@ -1,7 +1,8 @@
 import Experience from '../Experience.js'
 import Environment from './Environment.js'
 import Floor from './Floor.js'
-import Fox from './Fox.js'
+// import Fox from './Fox.js'
+import Bike from './Bike.js'
 
 export default class World
 {
@@ -16,14 +17,19 @@ export default class World
         {
             // Setup
             this.floor = new Floor()
-            this.fox = new Fox()
+            // this.fox = new Fox()
+            this.bike = new Bike()
             this.environment = new Environment()
         })
     }
 
     update()
     {
-        if(this.fox)
-            this.fox.update()
+        // if(this.fox) {
+        //     this.fox.update()
+        // }
+        if(this.bike) {
+            this.bike.update()
+        }
     }
 }
