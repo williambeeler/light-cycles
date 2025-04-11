@@ -11,13 +11,17 @@ export default class Camera
         this.scene = this.experience.scene
         this.canvas = this.experience.canvas
 
+        this.fov = 35
+        this.nearClipping = 0.1
+        this.farClipping = 1000
+
         this.setInstance()
         this.setControls()
     }
 
     setInstance()
     {
-        this.instance = new THREE.PerspectiveCamera(35, this.sizes.width / this.sizes.height, 0.1, 100)
+        this.instance = new THREE.PerspectiveCamera(this.fov, this.sizes.width / this.sizes.height, this.nearClipping, this.farClipping)
         this.instance.position.set(6, 4, 8)
         this.scene.add(this.instance)
     }
