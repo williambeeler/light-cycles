@@ -33,6 +33,10 @@ export default class Environment
         // Debug
         if(this.debug.active)
         {
+
+            const axesHelper = new THREE.AxesHelper(5); // size of the lines
+            this.scene.add(axesHelper);            
+
             this.debugFolder
                 .add(this.sunLight, 'intensity')
                 .name('sunLightIntensity')
@@ -68,7 +72,7 @@ export default class Environment
         this.environmentMap = {}
         this.environmentMap.intensity = 0.4
         this.environmentMap.texture = this.resources.items.environmentMapTexture
-        this.environmentMap.texture.colorSpace = THREE.SRGBColorSpace
+        // this.environmentMap.texture.colorSpace = THREE.SRGBColorSpace
         
         this.scene.environment = this.environmentMap.texture
 

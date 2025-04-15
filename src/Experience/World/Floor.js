@@ -64,14 +64,14 @@ export default class Floor
 
     setTextures()
     {
-        this.textures = {}
+        // this.textures = {}
 
         //Color texture of the ground
-        this.textures.color = this.resources.items.tronFloorTexture
-        this.textures.color.colorSpace = THREE.SRGBColorSpace
-        this.textures.color.repeat.set(this.floorRepeat, this.floorRepeat)
-        this.textures.color.wrapS = THREE.RepeatWrapping
-        this.textures.color.wrapT = THREE.RepeatWrapping
+        // this.textures.color = this.resources.items.tronFloorTexture
+        // this.textures.color.colorSpace = THREE.SRGBColorSpace
+        // this.textures.color.repeat.set(this.floorRepeat, this.floorRepeat)
+        // this.textures.color.wrapS = THREE.RepeatWrapping
+        // this.textures.color.wrapT = THREE.RepeatWrapping
 
         //Normal texture of the ground
         // this.textures.normal = this.resources.items.tronFloorNormalTexture
