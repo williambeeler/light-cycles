@@ -16,18 +16,29 @@ export default class Bike
         this.player.trail = []
         this.player.bikeSize = 0.7
         this.player.bikeLocationY = 0.16
+        this.player.direction = new THREE.Vector3(0, 0, 0)
         this.player.lives = 3
         this.player.score = 0
-        this.player.engineStart = false
         this.player.speed = 0.1
-        this.player.mostRecentDirection = null //up, left, right
+        this.player.isMoving = false
+        this.player.keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false
+        }
+        this.player.turnAngle = Math.PI / 2
+        // Track rotation angle (Y-axis rotation in radians)
+        this.player.rotationY = 0 // Initial rotation
+        
 
         // Debug
         if(this.debug.active)
         {
             const debugObject = {
                 bikeSize: this.player.bikeSize,
-                bikeLocationY: this.player.bikeLocationY 
+                bikeLocationY: this.player.bikeLocationY,
+                bikeRotate: 0
             }
             this.debugFolder = this.debug.ui.addFolder('bike')
             this.debugFolder.add(debugObject, 'bikeSize', 0, 100, 0.01)
@@ -40,6 +51,11 @@ export default class Bike
                 {
                     this.model.position.set(this.model.position.x, debugObject.bikeLocationY, this.model.position.z)
                 })
+            this.debugFolder.add(debugObject, 'bikeRotate', 0, 360, 0.01)
+                .onChange(() =>
+                {
+                    this.player.model.rotation.y = debugObject.bikeRotate
+                })
         }
 
         // Resource
@@ -50,10 +66,48 @@ export default class Bike
 
         //Add to the player object
         this.player.lastTurnPos = this.player.model.position.clone()
-        this.player.direction = new THREE.Vector3(1, this.player.bikeLocationY, 0); // start moving +X
 
         //Controls event listener
-        document.addEventListener('keydown', this.setControls.bind(this, this.player));
+        // document.addEventListener('keydown', this.setControls.bind(this, this.player))
+        document.addEventListener('keydown', this.playerKeydown.bind(this, this.player))
+        document.addEventListener('keyup', this.playerKeyup.bind(this, this.player));
+
+
+        console.log(this.player)
+    }
+
+    /*
+    * Orients the model itself based on directional movement
+    */
+    modelOrientation(player)
+    {
+
+    }
+
+    playerKeydown(player, e)
+    {
+        if (player.keys.hasOwnProperty(e.key)) {
+            player.keys[e.key] = true
+            player.isMoving = true
+
+            // Handle left/right turns immediately on keydown
+            if (e.key === 'ArrowLeft') {
+                player.rotationY += player.turnAngle // Turn 45 degrees left
+                player.model.rotation.y = player.rotationY
+            } else if (e.key === 'ArrowRight') {
+                player.rotationY -= player.turnAngle // Turn 45 degrees right
+                player.model.rotation.y = player.rotationY
+            }
+
+        }
+    }
+
+    playerKeyup(player, e)
+    {
+        if (player.keys.hasOwnProperty(e.key)) {
+            player.keys[e.key] = false
+            player.isMoving = false
+        }
     }
 
     setModel()
@@ -84,59 +138,54 @@ export default class Bike
         
     }
 
-    setControls(player, e)
-    {
-        if (e.key === 'ArrowUp' && player.direction.z !== -1) {
-            player.engineStart = true
-            player.direction.set(0, 0, -1)
-            player.mostRecentDirection = 'up'
-            // player.direction.rotateX(0, 0, -1)
-        }
-        if (e.key === 'ArrowDown' && player.direction.z !== 1) {
-            player.direction.set(0, 0, 0)
-            player.engineStart = false
-            player.mostRecentDirection = 'back'
-            // player.speed = 0
-        }
-        if (e.key === 'ArrowLeft' && player.direction.x !== -1) {
-            player.direction.set(-1, 0, 0)
-            player.mostRecentDirection = 'left'
-            player.model.rotation.y += Math.PI / 2;
-        }
-        if (e.key === 'ArrowRight' && player.direction.x !== 1) {
-            player.direction.set(1, 0, 0)
-            player.mostRecentDirection = 'right'
-            player.model.rotation.y -= Math.PI / 2;
-        }
-        this.addTrailSegment(player)
-        console.log(e.key)
-    }
 
-    addTrailSegment(player) {
-        const currentPos = player.model.position.clone()
-        const length = currentPos.distanceTo(player.lastTurnPos);
+    // addTrailSegment(player) {
+    //     const currentPos = player.model.position.clone()
+    //     const length = currentPos.distanceTo(player.lastTurnPos);
       
-        const mid = currentPos.clone().add(player.lastTurnPos).multiplyScalar(0.5)
-        const isX = player.direction.x !== 0
+    //     const mid = currentPos.clone().add(player.lastTurnPos).multiplyScalar(0.5)
+    //     const isX = player.direction.x !== 0
       
-        const geometry = new THREE.BoxGeometry(isX ? length : 1, 1, isX ? 1 : length)
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, opacity: 1, transparent: false })
-        const segment = new THREE.Mesh(geometry, material)
-        segment.position.copy(mid)
-        segment.position.y = 0.5
+    //     const geometry = new THREE.BoxGeometry(isX ? length : 1, 1, isX ? 1 : length)
+    //     const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, opacity: 1, transparent: false })
+    //     const segment = new THREE.Mesh(geometry, material)
+    //     segment.position.copy(mid)
+    //     segment.position.y = 0.5
       
-        player.trail.push(segment)
-        this.scene.add(segment)
+    //     player.trail.push(segment)
+    //     this.scene.add(segment)
       
-        player.lastTurnPos = currentPos.clone()
-    }    
+    //     player.lastTurnPos = currentPos.clone()
+    // }    
 
     update()
     {
         // Move player
-        if (this.player.engineStart == true) {
-            this.player.model.position.addScaledVector(this.player.direction, this.player.speed)
+        if (this.player.isMoving == true) {
             console.log(this.player.model.position)
+
+            // Reset direction
+            this.player.direction.set(0, 0, 0);
+
+            // Prevent diagonal movement by prioritizing one direction
+            if (this.player.keys.ArrowUp) {
+                this.player.direction.z = 1; // Move forward
+            } else if (this.player.keys.ArrowDown) {
+                this.player.direction.z = -1; // Move backward
+            } else if (this.player.keys.ArrowLeft) {
+                // this.player.direction.x = -1; // Move left
+            } else if (this.player.keys.ArrowRight) {
+                // this.player.direction.x = 1; // Move right
+            }
+
+            // Apply movement in world space based on rotation
+            if (this.player.direction.length() > 0) {
+                // Transform direction to world space using model's rotation
+                const moveDirection = this.player.direction.clone().applyQuaternion(this.player.model.quaternion);
+                this.player.model.position.x += moveDirection.x * this.player.speed;
+                this.player.model.position.z += moveDirection.z * this.player.speed;
+            }
+
         }
     }
 }
