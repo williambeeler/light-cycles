@@ -1,4 +1,4 @@
-# Three.js Starterkit
+# Light Cyles Three.js Game
 
 ## Setup
 Download [Node.js](https://nodejs.org/en/download/).
@@ -16,7 +16,9 @@ npm install
 npm run dev
 ```
 
-### Build for production in the dist/ directory
+### Build for production in the docs/ directory
+
+The docs directory is used because of Github Pages.
 
 ```bash
 npm run build
